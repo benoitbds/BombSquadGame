@@ -5,10 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bomb Squad</title>
     <style>
-        /* Styles précédents inchangés */
-        /* ... */
-
-        #player-setup input[type="text"] {
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .screen {
+            display: none;
+            padding: 20px;
+            text-align: center;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        input[type="text"], input[type="number"] {
             width: 80%;
             padding: 10px;
             margin: 5px 0;
@@ -25,11 +61,36 @@
             background-color: #f0f0f0;
             border-radius: 5px;
         }
+        .feedback {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feedback.show {
+            opacity: 1;
+        }
+        .feedback.success {
+            background-color: #2ecc71;
+        }
+        .feedback.error {
+            background-color: #e74c3c;
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <!-- Autres écrans inchangés -->
+        <div id="home-screen" class="screen">
+            <h1>Bomb Squad</h1>
+            <p>Désamorcez la bombe avant qu'il ne soit trop tard !</p>
+            <button id="start-setup">Configurer la partie</button>
+        </div>
         <div id="player-setup" class="screen">
             <h2>Configuration des joueurs</h2>
             <p>Combien de joueurs participeront ? (3-8)</p>
@@ -40,18 +101,46 @@
             </div>
             <button id="start-game" style="display: none;">Commencer le jeu</button>
         </div>
-        <!-- Autres écrans inchangés -->
+        <div id="role-distribution" class="screen">
+            <h2>Distribution des rôles</h2>
+            <p>Passez le téléphone à chaque joueur pour voir son rôle.</p>
+            <button id="show-role">Voir mon rôle</button>
+            <p id="role-display" style="display: none;"></p>
+            <button id="next-player" style="display: none;">Joueur suivant</button>
+        </div>
+        <!-- Autres écrans (game-screen, identification-screen, end-screen) ici -->
     </div>
 
     <div id="feedback" class="feedback"></div>
 
     <script>
-        // Variables globales précédentes inchangées
-        // ...
+        // Variables globales
+        let currentScreen = 'home-screen';
+        let players = [];
+        let currentPlayerIndex = 0;
+        let bombPlanter = null;
 
-        function startGame() {
-            setupPlayers();
-            showScreen('role-distribution');
+        // Fonctions d'aide
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.style.display = 'none';
+            });
+            document.getElementById(screenId).style.display = 'block';
+            currentScreen = screenId;
+        }
+
+        function showFeedback(message, isSuccess) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = 'feedback ' + (isSuccess ? 'success' : 'error');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2000);
+        }
+
+        function startSetup() {
+            showScreen('player-setup');
         }
 
         function setPlayerCount() {
@@ -72,6 +161,11 @@
             document.getElementById('set-player-count').style.display = 'none';
         }
 
+        function startGame() {
+            setupPlayers();
+            showScreen('role-distribution');
+        }
+
         function setupPlayers() {
             players = [];
             const playerInputs = document.getElementById('player-inputs').getElementsByTagName('input');
@@ -81,7 +175,15 @@
             }
         }
 
-        // Fonctions modifiées pour utiliser les pseudos
+        function distributeRoles() {
+            if (!bombPlanter) {
+                bombPlanter = Math.floor(Math.random() * players.length);
+            }
+            const role = currentPlayerIndex === bombPlanter ? 'Poseur de bombe' : 'Démineur';
+            players[currentPlayerIndex].role = role;
+            return role;
+        }
+
         function showRole() {
             const role = distributeRoles();
             const roleDisplay = document.getElementById('role-display');
@@ -92,19 +194,24 @@
             showFeedback("Rôle attribué!", true);
         }
 
-        function showIdentificationScreen() {
-            showScreen('identification-screen');
-            const accusationList = document.getElementById('player-accusation-list');
-            accusationList.innerHTML = players.map(player => 
-                `<button class="accuse-button" data-player-id="${player.id}">${player.name}</button>`
-            ).join('');
+        function nextPlayer() {
+            currentPlayerIndex++;
+            if (currentPlayerIndex < players.length) {
+                document.getElementById('role-display').style.display = 'none';
+                document.getElementById('show-role').style.display = 'block';
+                document.getElementById('next-player').style.display = 'none';
+            } else {
+                // Ici, vous pouvez ajouter la logique pour passer à l'écran de jeu principal
+                showFeedback("Tous les rôles ont été distribués!", true);
+            }
         }
 
         // Event listeners
+        document.getElementById('start-setup').addEventListener('click', startSetup);
         document.getElementById('set-player-count').addEventListener('click', setPlayerCount);
         document.getElementById('start-game').addEventListener('click', startGame);
-        // Autres event listeners inchangés
-        // ...
+        document.getElementById('show-role').addEventListener('click', showRole);
+        document.getElementById('next-player').addEventListener('click', nextPlayer);
 
         // Initialisation
         showScreen('home-screen');
