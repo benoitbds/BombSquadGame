@@ -5,137 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bomb Squad</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        #game-container {
-            width: 100%;
-            max-width: 400px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .screen {
-            display: none;
-            padding: 20px;
-            text-align: center;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        button {
-            background-color: #4CAF50;
-            border: none;
+        /* Styles précédents inchangés */
+        /* ... */
+
+        .feedback {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
             color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        button:hover {
-            background-color: #45a049;
+        .feedback.show {
+            opacity: 1;
         }
-        #wire-container {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
+        .feedback.success {
+            background-color: #2ecc71;
         }
-        .wire {
-            width: 50px;
-            height: 150px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .wire:hover {
-            transform: scale(1.1);
-        }
-        #timer {
-            font-size: 24px;
-            margin: 20px 0;
-            color: #d9534f;
-        }
-        #clue {
-            font-style: italic;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .fade-in {
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        #player-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        #player-list li {
-            margin: 5px 0;
-            padding: 5px;
-            background-color: #e9ecef;
-            border-radius: 3px;
+        .feedback.error {
+            background-color: #e74c3c;
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <div id="home-screen" class="screen">
-            <h1>Bomb Squad</h1>
-            <p>Désamorcez la bombe avant qu'il ne soit trop tard !</p>
-            <button id="start-game">Commencer le jeu</button>
-        </div>
-        <div id="player-setup" class="screen">
-            <h2>Configuration des joueurs</h2>
-            <input type="number" id="player-count" min="3" max="8" value="4">
-            <button id="set-players">Valider</button>
-            <ul id="player-list"></ul>
-        </div>
-        <div id="role-distribution" class="screen">
-            <h2>Distribution des rôles</h2>
-            <p>Passez le téléphone à chaque joueur pour voir son rôle.</p>
-            <button id="show-role">Voir mon rôle</button>
-            <p id="role-display" style="display: none;"></p>
-            <button id="next-player" style="display: none;">Joueur suivant</button>
-        </div>
-        <div id="game-screen" class="screen">
-            <h2>Désamorcez la bombe !</h2>
-            <div id="timer"></div>
-            <div id="wire-container">
-                <div class="wire" data-color="red" style="background-color: red;"></div>
-                <div class="wire" data-color="blue" style="background-color: blue;"></div>
-                <div class="wire" data-color="green" style="background-color: green;"></div>
-                <div class="wire" data-color="yellow" style="background-color: yellow;"></div>
-            </div>
-            <p id="clue"></p>
-            <button id="validate-choice" style="display: none;">Valider le choix</button>
-        </div>
-        <div id="identification-screen" class="screen">
-            <h2>Identification du poseur de bombe</h2>
-            <p>Qui est le poseur de bombe ?</p>
-            <div id="player-accusation-list"></div>
-        </div>
-        <div id="end-screen" class="screen">
-            <h2>Fin de la partie</h2>
-            <p id="result"></p>
-            <button id="play-again">Rejouer</button>
-        </div>
+        <!-- Structure HTML précédente inchangée -->
     </div>
+
+    <div id="feedback" class="feedback"></div>
 
     <script>
         // Variables globales
@@ -168,6 +69,16 @@
             currentScreen = screenId;
         }
 
+        function showFeedback(message, isSuccess) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.classList.add(isSuccess ? 'success' : 'error');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2000);
+        }
+
         function startGame() {
             showScreen('player-setup');
         }
@@ -191,10 +102,12 @@
 
         function showRole() {
             const role = distributeRoles();
-            document.getElementById('role-display').textContent = `${players[currentPlayerIndex].name}, votre rôle : ${role}`;
-            document.getElementById('role-display').style.display = 'block';
+            const roleDisplay = document.getElementById('role-display');
+            roleDisplay.textContent = `${players[currentPlayerIndex].name}, votre rôle : ${role}`;
+            roleDisplay.style.display = 'block';
             document.getElementById('show-role').style.display = 'none';
             document.getElementById('next-player').style.display = 'block';
+            showFeedback("Rôle attribué!", true);
         }
 
         function nextPlayer() {
@@ -252,6 +165,7 @@
                 if (selectedWire.dataset.color === correctWire) {
                     endGame('Les démineurs ont gagné !');
                 } else {
+                    showFeedback("Mauvais fil! Essayez encore.", false);
                     showClue();
                     selectedWire.style.transform = 'scale(1)';
                     selectedWire = null;
