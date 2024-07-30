@@ -22,14 +22,14 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             overflow: hidden;
+            padding: 20px;
         }
         .screen {
             display: none;
-            padding: 20px;
-            text-align: center;
         }
         h1, h2 {
             color: #333;
+            text-align: center;
         }
         button {
             background-color: #4CAF50;
@@ -43,9 +43,10 @@
             margin: 4px 2px;
             cursor: pointer;
             border-radius: 5px;
+            width: 100%;
         }
         input[type="text"], input[type="number"] {
-            width: 80%;
+            width: calc(100% - 22px);
             padding: 10px;
             margin: 5px 0;
             border: 1px solid #ddd;
@@ -108,7 +109,7 @@
             <p id="role-display" style="display: none;"></p>
             <button id="next-player" style="display: none;">Joueur suivant</button>
         </div>
-        <!-- Autres écrans (game-screen, identification-screen, end-screen) ici -->
+        <!-- Autres écrans (game-screen, identification-screen, end-screen) à ajouter ici -->
     </div>
 
     <div id="feedback" class="feedback"></div>
@@ -120,7 +121,7 @@
         let currentPlayerIndex = 0;
         let bombPlanter = null;
 
-        // Fonctions d'aide
+        // Fonctions
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.style.display = 'none';
@@ -201,8 +202,8 @@
                 document.getElementById('show-role').style.display = 'block';
                 document.getElementById('next-player').style.display = 'none';
             } else {
-                // Ici, vous pouvez ajouter la logique pour passer à l'écran de jeu principal
                 showFeedback("Tous les rôles ont été distribués!", true);
+                // Ici, vous pouvez ajouter la logique pour passer à l'écran de jeu principal
             }
         }
 
