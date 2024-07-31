@@ -114,7 +114,7 @@ function nextPlayer() {
         document.getElementById('show-role').style.display = 'block';
         document.getElementById('next-player').style.display = 'none';
     } else {
-        startDefusing(); // Passer directement à la phase de désamorçage
+        startDefusing();
     }
 }
 
@@ -179,7 +179,6 @@ document.getElementById('set-player-count').addEventListener('click', setPlayerC
 document.getElementById('start-game').addEventListener('click', startGame);
 document.getElementById('show-role').addEventListener('click', showRole);
 document.getElementById('next-player').addEventListener('click', nextPlayer);
-document.getElementById('start-defusing').addEventListener('click', startDefusing);
 document.querySelectorAll('.wire-button').forEach(button => {
     button.addEventListener('click', () => toggleWireSelection(button));
 });
