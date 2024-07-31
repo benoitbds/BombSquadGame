@@ -107,7 +107,7 @@ function nextPlayer() {
 function startGameplay() {
     showScreen('game-screen');
     correctWire = wireColors[Math.floor(Math.random() * wireColors.length)];
-    remainingTime = Math.floor(Math.random() * (600 - 300 + 1)) + 300; // 5 à 10 minutes
+    remainingTime = 120 //Math.floor(Math.random() * (600 - 300 + 1)) + 300; // 5 à 10 minutes
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
     showClue();
