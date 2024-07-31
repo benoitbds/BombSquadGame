@@ -5,16 +5,10 @@ let currentPlayerIndex = 0;
 let bombPlanter = null;
 let timerInterval = null;
 let remainingTime = 0;
-const wireColors = ['red', 'blue', 'green', 'yellow'];
-let correctWire = '';
-let selectedWire = null;
-let turnCount = 0;
-const clues = [
-    "Le fil correct a une couleur chaude.",
-    "Le fil correct n'est pas un de ceux aux extrémités.",
-    "Le fil correct est adjacent à un fil bleu.",
-    "Le fil correct a une lettre en commun avec le mot 'vert'.",
-];
+const wireColors = ['red', 'blue', 'green'];
+let correctWires = [];
+let selectedWires = [];
+let hints = [];
 
 // Fonctions
 function showScreen(screenId) {
@@ -59,6 +53,7 @@ function setPlayerCount() {
 
 function startGame() {
     setupPlayers();
+    setupGame();
     showScreen('role-distribution');
 }
 
@@ -67,50 +62,73 @@ function setupPlayers() {
     const playerInputs = document.getElementById('player-inputs').getElementsByTagName('input');
     for (let i = 0; i < playerInputs.length; i++) {
         const pseudo = playerInputs[i].value.trim() || `Joueur ${i + 1}`;
-        players.push({id: i, name: pseudo, role: null});
+        players.push({id: i, name: pseudo, role: null, hint: ''});
     }
 }
 
-function distributeRoles() {
-    if (!bombPlanter) {
-        bombPlanter = Math.floor(Math.random() * players.length);
+function setupGame() {
+    bombPlanter = Math.floor(Math.random() * players.length);
+    correctWires = [];
+    while (correctWires.length < 2) {
+        const wire = wireColors[Math.floor(Math.random() * wireColors.length)];
+        if (!correctWires.includes(wire)) {
+            correctWires.push(wire);
+        }
     }
-    const role = currentPlayerIndex === bombPlanter ? 'Poseur de bombe' : 'Démineur';
-    players[currentPlayerIndex].role = role;
-    return role;
+    generateHints();
+}
+
+function generateHints() {
+    const safeWire = wireColors.find(color => !correctWires.includes(color));
+    hints = players.map((player, index) => {
+        if (index === bombPlanter) {
+            return `Les fils à couper sont ${correctWires[0]} et ${correctWires[1]}.`;
+        } else {
+            const hintType = Math.random() < 0.5;
+            return hintType
+                ? `Le fil ${safeWire} est sûr.`
+                : `Évitez le fil ${correctWires[Math.floor(Math.random() * 2)]}.`;
+        }
+    });
 }
 
 function showRole() {
-    const role = distributeRoles();
+    const player = players[currentPlayerIndex];
+    player.role = currentPlayerIndex === bombPlanter ? 'Poseur de bombe' : 'Démineur';
+    player.hint = hints[currentPlayerIndex];
+
     const roleDisplay = document.getElementById('role-display');
-    roleDisplay.textContent = `${players[currentPlayerIndex].name}, votre rôle : ${role}`;
-    roleDisplay.style.display = 'block';
+    const roleHint = document.getElementById('role-hint');
+    roleDisplay.textContent = `${player.name}, votre rôle : ${player.role}`;
+    roleHint.textContent = `Indice : ${player.hint}`;
+
+    document.getElementById('role-info').style.display = 'block';
     document.getElementById('show-role').style.display = 'none';
     document.getElementById('next-player').style.display = 'block';
-    showFeedback("Rôle attribué!", true);
 }
 
 function nextPlayer() {
+    document.getElementById('role-info').style.display = 'none';
     currentPlayerIndex++;
     if (currentPlayerIndex < players.length) {
-        document.getElementById('role-display').style.display = 'none';
         document.getElementById('show-role').style.display = 'block';
         document.getElementById('next-player').style.display = 'none';
     } else {
-        showFeedback("Tous les rôles ont été distribués!", true);
-        setTimeout(() => {
-            startGameplay();
-        }, 2000);
+        showDiscussionPhase();
     }
 }
 
-function startGameplay() {
+function showDiscussionPhase() {
+    showScreen('discussion-phase');
+    const revealedHints = document.getElementById('revealed-hints');
+    revealedHints.innerHTML = players.map(player => `<p>${player.name}: ${player.hint}</p>`).join('');
+}
+
+function startDefusing() {
     showScreen('game-screen');
-    correctWire = wireColors[Math.floor(Math.random() * wireColors.length)];
-    remainingTime = 120; //Math.floor(Math.random() * (600 - 300 + 1)) + 300; // 5 à 10 minutes
+    remainingTime = 300; // 5 minutes
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
-    showClue();
 }
 
 function updateTimer() {
@@ -127,28 +145,22 @@ function updateTimer() {
     remainingTime--;
 }
 
-function showClue() {
-    const clueElement = document.getElementById('clue');
-    clueElement.textContent = clues[turnCount % clues.length];
-}
-
-function selectWire(wire) {
-    if (selectedWire) {
-        selectedWire.style.transform = 'scale(1)';
+function toggleWireSelection(button) {
+    const color = button.dataset.color;
+    const index = selectedWires.indexOf(color);
+    if (index > -1) {
+        selectedWires.splice(index, 1);
+        button.classList.remove('selected');
+    } else if (selectedWires.length < 2) {
+        selectedWires.push(color);
+        button.classList.add('selected');
     }
-    selectedWire = wire;
-    wire.style.transform = 'scale(1.1)';
-    document.getElementById('validate-choice').style.display = 'block';
+    document.getElementById('validate-choice').style.display = selectedWires.length === 2 ? 'block' : 'none';
 }
 
 function validateWireChoice() {
-    if (selectedWire) {
-        if (selectedWire.dataset.color === correctWire) {
-            endGame('Félicitations ! Vous avez désamorcé la bombe !');
-        } else {
-            endGame('Boom ! Vous avez coupé le mauvais fil. La bombe a explosé.');
-        }
-    }
+    const isCorrect = selectedWires.every(wire => correctWires.includes(wire)) && selectedWires.length === correctWires.length;
+    endGame(isCorrect ? 'Félicitations ! Vous avez désamorcé la bombe !' : 'Boom ! Vous avez coupé le mauvais fil. La bombe a explosé.');
 }
 
 function endGame(message) {
@@ -156,7 +168,15 @@ function endGame(message) {
     showFeedback(message, message.includes('Félicitations'));
     setTimeout(() => {
         showScreen('home-screen');
+        resetGame();
     }, 3000);
+}
+
+function resetGame() {
+    currentPlayerIndex = 0;
+    bombPlanter = null;
+    selectedWires = [];
+    document.querySelectorAll('.wire-button').forEach(button => button.classList.remove('selected'));
 }
 
 // Event listeners
@@ -165,10 +185,9 @@ document.getElementById('set-player-count').addEventListener('click', setPlayerC
 document.getElementById('start-game').addEventListener('click', startGame);
 document.getElementById('show-role').addEventListener('click', showRole);
 document.getElementById('next-player').addEventListener('click', nextPlayer);
-document.getElementById('wire-container').addEventListener('click', (e) => {
-    if (e.target.classList.contains('wire')) {
-        selectWire(e.target);
-    }
+document.getElementById('start-defusing').addEventListener('click', startDefusing);
+document.querySelectorAll('.wire-button').forEach(button => {
+    button.addEventListener('click', () => toggleWireSelection(button));
 });
 document.getElementById('validate-choice').addEventListener('click', validateWireChoice);
 
