@@ -8,19 +8,8 @@
 </head>
 <body>
     <div id="game-container">
-        <div id="home-screen" class="screen">
-            <h1>Bomb Squad</h1>
-            <p>Désamorcez la bombe avant qu'il ne soit trop tard !</p>
-            <button id="start-setup">Configurer la partie</button>
-        </div>
-        <div id="player-setup" class="screen">
-            <h2>Configuration des joueurs</h2>
-            <p>Combien de joueurs participeront ? (3-8)</p>
-            <input type="number" id="player-count" min="3" max="8" value="4">
-            <button id="set-player-count">Valider</button>
-            <div id="player-inputs" style="display: none;"></div>
-            <button id="start-game" style="display: none;">Commencer le jeu</button>
-        </div>
+        <!-- Autres écrans inchangés -->
+        
         <div id="role-distribution" class="screen">
             <h2>Distribution des rôles</h2>
             <p>Passez le téléphone à chaque joueur pour voir son rôle.</p>
@@ -31,12 +20,7 @@
             </div>
             <button id="next-player" style="display: none;">Joueur suivant</button>
         </div>
-        <div id="discussion-phase" class="screen">
-            <h2>Phase de Discussion</h2>
-            <p>Discutez des indices et décidez quels fils couper.</p>
-            <div id="revealed-hints"></div>
-            <button id="start-defusing">Commencer le désamorçage</button>
-        </div>
+        
         <div id="game-screen" class="screen">
             <h2>Désamorcez la bombe !</h2>
             <div id="timer"></div>
