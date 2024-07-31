@@ -25,8 +25,17 @@
             <h2>Distribution des rôles</h2>
             <p>Passez le téléphone à chaque joueur pour voir son rôle.</p>
             <button id="show-role">Voir mon rôle</button>
-            <p id="role-display" style="display: none;"></p>
+            <div id="role-info" style="display: none;">
+                <p id="role-display"></p>
+                <p id="role-hint"></p>
+            </div>
             <button id="next-player" style="display: none;">Joueur suivant</button>
+        </div>
+        <div id="discussion-phase" class="screen">
+            <h2>Phase de Discussion</h2>
+            <p>Discutez des indices et décidez quels fils couper.</p>
+            <div id="revealed-hints"></div>
+            <button id="start-defusing">Commencer le désamorçage</button>
         </div>
         <div id="game-screen" class="screen">
             <h2>Désamorcez la bombe !</h2>
@@ -35,10 +44,14 @@
                 <div class="wire" data-color="red"></div>
                 <div class="wire" data-color="blue"></div>
                 <div class="wire" data-color="green"></div>
-                <div class="wire" data-color="yellow"></div>
             </div>
-            <p id="clue"></p>
-            <button id="validate-choice" style="display: none;">Couper ce fil</button>
+            <p id="cut-instructions">Choisissez les fils à couper :</p>
+            <div id="wire-buttons">
+                <button class="wire-button" data-color="red">Couper fil rouge</button>
+                <button class="wire-button" data-color="blue">Couper fil bleu</button>
+                <button class="wire-button" data-color="green">Couper fil vert</button>
+            </div>
+            <button id="validate-choice" style="display: none;">Valider les choix</button>
         </div>
     </div>
     <div id="feedback" class="feedback"></div>
