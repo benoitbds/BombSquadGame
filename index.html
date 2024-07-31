@@ -4,12 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bomb Squad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="game-container">
-        <!-- Autres écrans inchangés -->
-        
+        <div id="home-screen" class="screen">
+            <h1>Bomb Squad</h1>
+            <p>Désamorcez la bombe avant qu'il ne soit trop tard !</p>
+            <button id="start-setup">Configurer la partie</button>
+        </div>
+
+        <div id="player-setup" class="screen">
+            <h2>Configuration des joueurs</h2>
+            <p>Combien de joueurs participeront ? (3-8)</p>
+            <input type="number" id="player-count" min="3" max="8" value="4">
+            <button id="set-player-count">Valider</button>
+            <div id="player-inputs" style="display: none;">
+                <!-- Les champs de saisie des pseudos seront générés ici -->
+            </div>
+            <button id="start-game" style="display: none;">Commencer le jeu</button>
+        </div>
+
         <div id="role-distribution" class="screen">
             <h2>Distribution des rôles</h2>
             <p>Passez le téléphone à chaque joueur pour voir son rôle.</p>
@@ -20,7 +36,7 @@
             </div>
             <button id="next-player" style="display: none;">Joueur suivant</button>
         </div>
-        
+
         <div id="game-screen" class="screen">
             <h2>Désamorcez la bombe !</h2>
             <div id="timer"></div>
@@ -38,7 +54,9 @@
             <button id="validate-choice" style="display: none;">Valider les choix</button>
         </div>
     </div>
+
     <div id="feedback" class="feedback"></div>
+
     <script src="script.js"></script>
 </body>
 </html>
