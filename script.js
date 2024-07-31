@@ -114,14 +114,8 @@ function nextPlayer() {
         document.getElementById('show-role').style.display = 'block';
         document.getElementById('next-player').style.display = 'none';
     } else {
-        showDiscussionPhase();
+        startDefusing(); // Passer directement à la phase de désamorçage
     }
-}
-
-function showDiscussionPhase() {
-    showScreen('discussion-phase');
-    const revealedHints = document.getElementById('revealed-hints');
-    revealedHints.innerHTML = players.map(player => `<p>${player.name}: ${player.hint}</p>`).join('');
 }
 
 function startDefusing() {
