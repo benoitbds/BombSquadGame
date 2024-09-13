@@ -20,73 +20,33 @@ button {
     font-size: 16px;
 }
 
-#wires-container {
-    display: flex;
-    justify-content: center;
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px;
+    width: 200px;
+}
+
+#timer {
+    font-size: 18px;
     margin-top: 20px;
 }
 
-.wire {
-    width: 50px;
-    height: 200px;
-    margin: 0 10px;
-    cursor: pointer;
-    position: relative;
-}
-
-.wire:before {
-    content: '';
-    width: 10px;
-    height: 100%;
-    background-color: currentColor;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.wire.red { color: red; }
-.wire.blue { color: blue; }
-.wire.green { color: green; }
-.wire.yellow { color: yellow; }
-
-#player-list {
+#player-list,
+#vote-player-list {
     list-style-type: none;
     padding: 0;
 }
 
-#player-list li {
+#player-list li,
+#vote-player-list li {
     margin: 5px 0;
 }
-#timer {
-    font-size: 20px;
-    font-weight: bold;
+
+#vote-player-list li {
+    cursor: pointer;
 }
 
-#mini-game-container {
-    position: relative;
-    width: 300px;
-    height: 50px;
-    margin: 20px auto;
-    background-color: #ccc;
-}
-
-#slider {
-    position: absolute;
-    width: 10px;
-    height: 50px;
-    background-color: red;
-    left: 0;
-}
-
-#target-zone {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    background-color: green;
-    left: 125px;
-}
-
-#cut-wire-btn {
-    padding: 10px 20px;
-    font-size: 16px;
+#vote-player-list li.selected {
+    background-color: #ddd;
 }
