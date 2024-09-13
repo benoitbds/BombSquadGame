@@ -29,16 +29,28 @@
         <button id="next-player-btn">Passer au Suivant</button>
     </div>
 
-    <!-- Écran de jeu principal -->
-    <div id="game-screen" class="screen" style="display: none;">
-        <h2>Bomb Squad</h2>
-        <p>Discutez entre vous et décidez quel fil couper.</p>
-        <div id="wires-container">
-            <!-- Les fils seront générés dynamiquement -->
-        </div>
-        <button id="restart-game-btn" style="display: none;">Rejouer</button>
+<!-- Écran de jeu principal -->
+<div id="game-screen" class="screen" style="display: none;">
+    <h2>Bomb Squad</h2>
+    <p>Discutez entre vous et décidez quel fil couper.</p>
+    <p id="timer">Temps restant : <span id="time-remaining">60</span> secondes</p>
+    <div id="wires-container">
+        <!-- Les fils seront générés dynamiquement -->
     </div>
+    <button id="restart-game-btn" style="display: none;">Rejouer</button>
+</div>
 
+<!-- Écran du mini-jeu -->
+<div id="mini-game-screen" class="screen" style="display: none;">
+    <h2>Coupez le Fil !</h2>
+    <p>Appuyez lorsque le curseur est dans la zone verte.</p>
+    <div id="mini-game-container">
+        <div id="slider"></div>
+        <div id="target-zone"></div>
+    </div>
+    <button id="cut-wire-btn">Couper le Fil</button>
+</div>
+    
     <!-- Script JavaScript -->
     <script src="script.js"></script>
 </body>
