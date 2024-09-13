@@ -1,163 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap');
-
 body {
-    font-family: 'Rock Salt', cursive;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-image: url('background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}
-
-#game-container {
-    width: 100%;
-    max-width: 400px;
-    background-color: rgba(255, 255, 255, 0.9); /* Fond légèrement transparent */
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    overflow: hidden;
-    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    text-align: center;
 }
 
 .screen {
-    display: none;
+    padding: 20px;
 }
 
 h1, h2 {
-    font-family: 'Rock Salt', cursive;
     color: #333;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-h1 {
-    font-size: 28px;
-}
-
-h2 {
-    font-size: 24px;
 }
 
 button {
-    font-family: 'Rock Salt', cursive;
-    background-color: #4CAF50;
-    border: none;
-    color: white;
     padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 5px;
-    width: 100%;
-    transition: background-color 0.3s;
+    margin: 10px;
+    font-size: 16px;
 }
 
-button:hover {
-    background-color: #45a049;
-}
-
-input[type="text"], input[type="number"] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-family: Arial, sans-serif;
-}
-
-#wire-container {
+#wires-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     margin-top: 20px;
 }
 
 .wire {
     width: 50px;
-    height: 150px;
+    height: 200px;
+    margin: 0 10px;
     cursor: pointer;
-    transition: transform 0.3s;
+    position: relative;
 }
 
-.wire:hover {
-    transform: scale(1.1);
-}
-
-.wire[data-color="red"] { background-color: red; }
-.wire[data-color="blue"] { background-color: blue; }
-.wire[data-color="green"] { background-color: green; }
-
-#timer {
-    font-family: 'Rock Salt', cursive;
-    font-size: 28px;
-    margin: 20px 0;
-    color: #e74c3c;
-    text-align: center;
-}
-
-#revealed-hints {
-    margin: 15px 0;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    font-family: 'Rock Salt', cursive;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.feedback {
-    font-family: 'Rock Salt', cursive;
-    position: fixed;
-    top: 20px;
+.wire:before {
+    content: '';
+    width: 10px;
+    height: 100%;
+    background-color: currentColor;
+    position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    padding: 10px 20px;
-    border-radius: 5px;
-    color: white;
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 16px;
 }
 
-.feedback.show {
-    opacity: 1;
+.wire.red { color: red; }
+.wire.blue { color: blue; }
+.wire.green { color: green; }
+.wire.yellow { color: yellow; }
+
+#player-list {
+    list-style-type: none;
+    padding: 0;
 }
 
-.feedback.success {
-    background-color: #2ecc71;
-}
-
-.feedback.error {
-    background-color: #e74c3c;
-}
-
-.wire-button {
+#player-list li {
     margin: 5px 0;
-}
-
-.wire-button.selected {
-    background-color: #2980b9;
-}
-
-#role-display, #role-hint {
-    font-family: 'Rock Salt', cursive;
-    font-size: 16px;
-    margin: 10px 0;
-    text-align: center;
-}
-
-#cut-instructions {
-    font-family: 'Rock Salt', cursive;
-    font-size: 18px;
-    margin: 15px 0;
-    text-align: center;
 }
