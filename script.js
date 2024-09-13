@@ -1,37 +1,38 @@
 // Variables globales
 let players = [];
 let roles = {};
+let playerClues = {};
 let currentPlayerIndex = 0;
 let gameActive = true;
-let timeRemaining = 60; // Temps initial en secondes
+let codeToDefuse = '';
+let timeLeft = 60; // Temps en secondes pour désamorcer la bombe
 let timerInterval;
-let correctWire;
-let selectedWireColor;
 
 // Éléments du DOM
 const welcomeScreen = document.getElementById('welcome-screen');
 const playerSetupScreen = document.getElementById('player-setup-screen');
 const roleRevealScreen = document.getElementById('role-reveal-screen');
-const gameScreen = document.getElementById('game-screen');
+const codeEntryScreen = document.getElementById('code-entry-screen');
+const voteScreen = document.getElementById('vote-screen');
+const endScreen = document.getElementById('end-screen');
 
 const startGameBtn = document.getElementById('start-game-btn');
 const addPlayerBtn = document.getElementById('add-player-btn');
 const startAssignmentBtn = document.getElementById('start-assignment-btn');
 const nextPlayerBtn = document.getElementById('next-player-btn');
+const submitCodeBtn = document.getElementById('submit-code-btn');
+const callVoteBtn = document.getElementById('call-vote-btn');
+const submitVoteBtn = document.getElementById('submit-vote-btn');
 const restartGameBtn = document.getElementById('restart-game-btn');
 
 const playerNameInput = document.getElementById('player-name-input');
 const playerList = document.getElementById('player-list');
 const currentPlayerName = document.getElementById('current-player-name');
 const roleInfo = document.getElementById('role-info');
-const wiresContainer = document.getElementById('wires-container');
-
-const timerDisplay = document.getElementById('time-remaining');
-const miniGameScreen = document.getElementById('mini-game-screen');
-const slider = document.getElementById('slider');
-const targetZone = document.getElementById('target-zone');
-const cutWireBtn = document.getElementById('cut-wire-btn');
-
+const codeInput = document.getElementById('code-input');
+const timerDisplay = document.getElementById('time-left');
+const votePlayerList = document.getElementById('vote-player-list');
+const endMessage = document.getElementById('end-message');
 
 // Écran d'accueil
 startGameBtn.addEventListener('click', () => {
@@ -56,34 +57,48 @@ addPlayerBtn.addEventListener('click', () => {
 
 // Attribuer les rôles
 startAssignmentBtn.addEventListener('click', () => {
-    playerSetupScreen.style.display = 'none';
-    assignRoles();
-    currentPlayerIndex = 0;
-    showRoleRevealScreen();
-});
-
-// Révéler les rôles
-nextPlayerBtn.addEventListener('click', () => {
-    currentPlayerIndex++;
-    if (currentPlayerIndex < players.length) {
+    if (players.length >= 3) {
+        playerSetupScreen.style.display = 'none';
+        assignRoles();
+        currentPlayerIndex = 0;
         showRoleRevealScreen();
     } else {
-        roleRevealScreen.style.display = 'none';
-        startGame();
+        alert('Il faut au moins 3 joueurs pour commencer le jeu.');
     }
 });
 
-// Rejouer
-restartGameBtn.addEventListener('click', () => {
-    location.reload();
-});
+// Révéler les rôles
+function showRoleRevealScreen() {
+    roleRevealScreen.style.display = 'block';
+    currentPlayerName.textContent = `Au tour de ${players[currentPlayerIndex]} de découvrir son rôle`;
+    roleInfo.textContent = 'Appuyez pour voir votre rôle';
+    nextPlayerBtn.textContent = 'Voir le Rôle';
 
-// Attribuer les rôles aléatoirement
+    nextPlayerBtn.onclick = () => {
+        const playerName = players[currentPlayerIndex];
+        const playerRole = roles[playerName];
+        const playerClue = playerClues[playerName];
+        roleInfo.textContent = `Votre rôle : ${playerRole}\n\n${playerClue}`;
+        nextPlayerBtn.textContent = 'Passer au Suivant';
+        nextPlayerBtn.onclick = () => {
+            currentPlayerIndex++;
+            if (currentPlayerIndex < players.length) {
+                roleInfo.textContent = '';
+                showRoleRevealScreen();
+            } else {
+                roleRevealScreen.style.display = 'none';
+                startGame();
+            }
+        };
+    };
+}
+
+// Attribuer les rôles et les indices
 function assignRoles() {
     // Initialiser les rôles
     roles = {};
     const totalPlayers = players.length;
-    const numBombers = Math.floor(totalPlayers / 3); // Environ un poseur de bombe pour 3 joueurs
+    const numBombers = Math.max(1, Math.floor(totalPlayers / 3)); // Au moins un poseur de bombe
 
     // Mélanger les index des joueurs
     const shuffledIndices = players.map((_, index) => index).sort(() => Math.random() - 0.5);
@@ -97,151 +112,126 @@ function assignRoles() {
     for (let i = numBombers; i < totalPlayers; i++) {
         roles[players[shuffledIndices[i]]] = 'Démineur';
     }
-}
 
-// Afficher l'écran de révélation des rôles
-function showRoleRevealScreen() {
-    roleRevealScreen.style.display = 'block';
-    currentPlayerName.textContent = `Au tour de ${players[currentPlayerIndex]} de découvrir son rôle`;
-    roleInfo.textContent = 'Appuyez pour voir votre rôle';
-    nextPlayerBtn.textContent = 'Voir le Rôle';
+    // Générer le code à désamorcer (par exemple, un code à 4 chiffres)
+    codeToDefuse = '';
+    for (let i = 0; i < 4; i++) {
+        codeToDefuse += Math.floor(Math.random() * 10);
+    }
 
-    nextPlayerBtn.onclick = () => {
-        const playerName = players[currentPlayerIndex];
-        const playerRole = roles[playerName];
-        roleInfo.textContent = `Votre rôle : ${playerRole}`;
-        if (playerRole === 'Démineur') {
-            // Générer un indice complexe pour le démineur
-            const clue = generateClue();
-            roleInfo.textContent += `\nIndice : ${clue}`;
+    // Distribuer les indices aux joueurs
+    playerClues = {};
+    let positions = [0, 1, 2, 3];
+    positions = positions.sort(() => Math.random() - 0.5);
+
+    players.forEach(player => {
+        if (roles[player] === 'Démineur') {
+            // Chaque Démineur connaît une position du code
+            const position = positions.pop();
+            const digit = codeToDefuse[position];
+            playerClues[player] = `Le chiffre en position ${position + 1} est ${digit}.`;
         } else {
-            roleInfo.textContent += `\nVotre objectif : Semer la confusion.`;
+            // Les Poseurs de Bombe connaissent le code complet
+            playerClues[player] = `Le code est ${codeToDefuse}.`;
         }
-        nextPlayerBtn.textContent = 'Passer au Suivant';
-        nextPlayerBtn.onclick = () => {
-            currentPlayerIndex++;
-            if (currentPlayerIndex < players.length) {
-                showRoleRevealScreen();
-            } else {
-                roleRevealScreen.style.display = 'none';
-                startGame();
-            }
-        };
-    };
+    });
 }
 
-// Générer des indices complexes
-function generateClue() {
-    const possibleClues = [
-        `Le bon fil est de couleur ${correctWire}.`,
-        `Le fil ${correctWire} est sûr.`,
-        `Le bon fil n'est pas le fil ${getRandomIncorrectWire()}.`,
-        `Le bon fil est adjacent au fil ${getRandomAdjacentWire()}.`,
-        `Le fil ${getRandomIncorrectWire()} est dangereux.`,
-    ];
-    return possibleClues[Math.floor(Math.random() * possibleClues.length)];
-}
-
-function getRandomIncorrectWire() {
-    const wireColors = ['red', 'blue', 'green', 'yellow'];
-    return wireColors.filter(color => color !== correctWire)[Math.floor(Math.random() * 3)];
-}
-
-function getRandomAdjacentWire() {
-    const wireColors = ['red', 'blue', 'green', 'yellow'];
-    const correctIndex = wireColors.indexOf(correctWire);
-    const adjacentIndices = [correctIndex - 1, correctIndex + 1].filter(i => i >= 0 && i < wireColors.length);
-    return wireColors[adjacentIndices[Math.floor(Math.random() * adjacentIndices.length)]];
-}
 // Commencer le jeu
 function startGame() {
-    gameScreen.style.display = 'block';
-    generateWires();
+    codeEntryScreen.style.display = 'block';
     startTimer();
 }
 
-// Démarrer le compte à rebours
+// Gestion du Timer
 function startTimer() {
-    timerDisplay.textContent = timeRemaining;
+    timerDisplay.textContent = timeLeft;
     timerInterval = setInterval(() => {
-        timeRemaining--;
-        timerDisplay.textContent = timeRemaining;
-        if (timeRemaining <= 0) {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            gameActive = false;
-            alert('BOUM ! La bombe a explosé.');
-            restartGameBtn.style.display = 'inline-block';
+            gameOver(false);
         }
     }, 1000);
 }
 
-// Générer les fils à couper avec indices complexes
-function generateWires() {
-    const wireColors = ['red', 'blue', 'green', 'yellow'];
-    correctWire = wireColors[Math.floor(Math.random() * wireColors.length)];
-
-    wireColors.forEach(color => {
-        const wire = document.createElement('div');
-        wire.classList.add('wire', color);
-        wire.addEventListener('click', () => {
-            if (!gameActive) return;
-            selectedWireColor = color;
-            gameScreen.style.display = 'none';
-            startMiniGame();
-        });
-        wiresContainer.appendChild(wire);
-    });
-}
-
-// Commencer le mini-jeu pour couper le fil
-function startMiniGame() {
-    miniGameScreen.style.display = 'block';
-    moveSlider();
-}
-
-// Logique du mini-jeu
-let sliderInterval;
-let sliderDirection = 1;
-
-function moveSlider() {
-    let position = 0;
-    sliderInterval = setInterval(() => {
-        if (position >= 290) sliderDirection = -1;
-        if (position <= 0) sliderDirection = 1;
-        position += sliderDirection * 5;
-        slider.style.left = position + 'px';
-    }, 30);
-}
-
-cutWireBtn.addEventListener('click', () => {
-    clearInterval(sliderInterval);
-    const sliderPos = slider.getBoundingClientRect();
-    const targetPos = targetZone.getBoundingClientRect();
-
-    if (
-        sliderPos.left >= targetPos.left &&
-        sliderPos.right <= targetPos.right
-    ) {
-        // Succès du mini-jeu
-        checkWire();
-    } else {
-        // Échec du mini-jeu
-        gameActive = false;
-        miniGameScreen.style.display = 'none';
-        alert('Vous avez manqué le fil ! BOUM !');
+// Valider le code entré
+submitCodeBtn.addEventListener('click', () => {
+    const enteredCode = codeInput.value;
+    if (enteredCode === codeToDefuse) {
         clearInterval(timerInterval);
-        restartGameBtn.style.display = 'inline-block';
+        gameOver(true);
+    } else {
+        alert('Mauvais code ! Dépêchez-vous, le temps presse.');
+        // Optionnel : Réduire le temps restant en cas d'erreur
+        timeLeft -= 5;
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            gameOver(false);
+        }
     }
 });
 
-function checkWire() {
-    miniGameScreen.style.display = 'none';
-    if (selectedWireColor === correctWire) {
-        alert('Bravo ! Vous avez désamorcé la bombe.');
+// Appeler un vote
+callVoteBtn.addEventListener('click', () => {
+    codeEntryScreen.style.display = 'none';
+    voteScreen.style.display = 'block';
+    populateVoteList();
+});
+
+// Peupler la liste de vote
+function populateVoteList() {
+    votePlayerList.innerHTML = '';
+    players.forEach(player => {
+        const li = document.createElement('li');
+        li.textContent = player;
+        li.addEventListener('click', () => {
+            const selected = document.querySelector('#vote-player-list li.selected');
+            if (selected) selected.classList.remove('selected');
+            li.classList.add('selected');
+        });
+        votePlayerList.appendChild(li);
+    });
+}
+
+// Valider le vote
+submitVoteBtn.addEventListener('click', () => {
+    const selected = document.querySelector('#vote-player-list li.selected');
+    if (selected) {
+        const accusedPlayer = selected.textContent;
+        if (roles[accusedPlayer] === 'Poseur de Bombe') {
+            alert(`${accusedPlayer} était un Poseur de Bombe ! Vous gagnez 15 secondes supplémentaires.`);
+            timeLeft += 15;
+            // Retirer le Poseur de Bombe du jeu
+            players = players.filter(player => player !== accusedPlayer);
+            delete roles[accusedPlayer];
+            delete playerClues[accusedPlayer];
+        } else {
+            alert(`${accusedPlayer} était innocent. Vous perdez 10 secondes.`);
+            timeLeft -= 10;
+        }
+        voteScreen.style.display = 'none';
+        codeEntryScreen.style.display = 'block';
     } else {
-        alert('BOUM ! La bombe a explosé.');
+        alert('Veuillez sélectionner un joueur à accuser.');
+    }
+});
+
+// Rejouer
+restartGameBtn.addEventListener('click', () => {
+    location.reload();
+});
+
+// Fin du jeu
+function gameOver(success) {
+    clearInterval(timerInterval);
+    codeEntryScreen.style.display = 'none';
+    endScreen.style.display = 'block';
+    if (success) {
+        endMessage.textContent = 'Bravo ! Vous avez désamorcé la bombe.';
+    } else {
+        endMessage.textContent = 'BOUM ! La bombe a explosé.';
     }
     gameActive = false;
-    clearInterval(timerInterval);
-    restartGameBtn.style.display = 'inline-block';
 }
