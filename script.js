@@ -3,6 +3,10 @@ let players = [];
 let roles = {};
 let currentPlayerIndex = 0;
 let gameActive = true;
+let timeRemaining = 60; // Temps initial en secondes
+let timerInterval;
+let correctWire;
+let selectedWireColor;
 
 // Éléments du DOM
 const welcomeScreen = document.getElementById('welcome-screen');
@@ -21,6 +25,13 @@ const playerList = document.getElementById('player-list');
 const currentPlayerName = document.getElementById('current-player-name');
 const roleInfo = document.getElementById('role-info');
 const wiresContainer = document.getElementById('wires-container');
+
+const timerDisplay = document.getElementById('time-remaining');
+const miniGameScreen = document.getElementById('mini-game-screen');
+const slider = document.getElementById('slider');
+const targetZone = document.getElementById('target-zone');
+const cutWireBtn = document.getElementById('cut-wire-btn');
+
 
 // Écran d'accueil
 startGameBtn.addEventListener('click', () => {
@@ -121,26 +132,91 @@ function showRoleRevealScreen() {
 function startGame() {
     gameScreen.style.display = 'block';
     generateWires();
+    startTimer();
 }
 
-// Générer les fils à couper
+// Démarrer le compte à rebours
+function startTimer() {
+    timerDisplay.textContent = timeRemaining;
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        timerDisplay.textContent = timeRemaining;
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            gameActive = false;
+            alert('BOUM ! La bombe a explosé.');
+            restartGameBtn.style.display = 'inline-block';
+        }
+    }, 1000);
+}
+
+// Générer les fils à couper avec indices complexes
 function generateWires() {
     const wireColors = ['red', 'blue', 'green', 'yellow'];
-    const correctWire = wireColors[Math.floor(Math.random() * wireColors.length)];
+    correctWire = wireColors[Math.floor(Math.random() * wireColors.length)];
 
     wireColors.forEach(color => {
         const wire = document.createElement('div');
         wire.classList.add('wire', color);
         wire.addEventListener('click', () => {
             if (!gameActive) return;
-            if (color === correctWire) {
-                alert('Bravo ! Vous avez désamorcé la bombe.');
-            } else {
-                alert('BOUM ! La bombe a explosé.');
-            }
-            gameActive = false;
-            restartGameBtn.style.display = 'inline-block';
+            selectedWireColor = color;
+            gameScreen.style.display = 'none';
+            startMiniGame();
         });
         wiresContainer.appendChild(wire);
     });
+}
+
+// Commencer le mini-jeu pour couper le fil
+function startMiniGame() {
+    miniGameScreen.style.display = 'block';
+    moveSlider();
+}
+
+// Logique du mini-jeu
+let sliderInterval;
+let sliderDirection = 1;
+
+function moveSlider() {
+    let position = 0;
+    sliderInterval = setInterval(() => {
+        if (position >= 290) sliderDirection = -1;
+        if (position <= 0) sliderDirection = 1;
+        position += sliderDirection * 5;
+        slider.style.left = position + 'px';
+    }, 30);
+}
+
+cutWireBtn.addEventListener('click', () => {
+    clearInterval(sliderInterval);
+    const sliderPos = slider.getBoundingClientRect();
+    const targetPos = targetZone.getBoundingClientRect();
+
+    if (
+        sliderPos.left >= targetPos.left &&
+        sliderPos.right <= targetPos.right
+    ) {
+        // Succès du mini-jeu
+        checkWire();
+    } else {
+        // Échec du mini-jeu
+        gameActive = false;
+        miniGameScreen.style.display = 'none';
+        alert('Vous avez manqué le fil ! BOUM !');
+        clearInterval(timerInterval);
+        restartGameBtn.style.display = 'inline-block';
+    }
+});
+
+function checkWire() {
+    miniGameScreen.style.display = 'none';
+    if (selectedWireColor === correctWire) {
+        alert('Bravo ! Vous avez désamorcé la bombe.');
+    } else {
+        alert('BOUM ! La bombe a explosé.');
+    }
+    gameActive = false;
+    clearInterval(timerInterval);
+    restartGameBtn.style.display = 'inline-block';
 }
