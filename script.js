@@ -111,9 +111,11 @@ function showRoleRevealScreen() {
         const playerRole = roles[playerName];
         roleInfo.textContent = `Votre rôle : ${playerRole}`;
         if (playerRole === 'Démineur') {
-            roleInfo.textContent += '\nIndice : Le bon fil n\'est pas rouge.';
+            // Générer un indice complexe pour le démineur
+            const clue = generateClue();
+            roleInfo.textContent += `\nIndice : ${clue}`;
         } else {
-            roleInfo.textContent += '\nVous connaissez la combinaison exacte.';
+            roleInfo.textContent += `\nVotre objectif : Semer la confusion.`;
         }
         nextPlayerBtn.textContent = 'Passer au Suivant';
         nextPlayerBtn.onclick = () => {
@@ -128,6 +130,29 @@ function showRoleRevealScreen() {
     };
 }
 
+// Générer des indices complexes
+function generateClue() {
+    const possibleClues = [
+        `Le bon fil est de couleur ${correctWire}.`,
+        `Le fil ${correctWire} est sûr.`,
+        `Le bon fil n'est pas le fil ${getRandomIncorrectWire()}.`,
+        `Le bon fil est adjacent au fil ${getRandomAdjacentWire()}.`,
+        `Le fil ${getRandomIncorrectWire()} est dangereux.`,
+    ];
+    return possibleClues[Math.floor(Math.random() * possibleClues.length)];
+}
+
+function getRandomIncorrectWire() {
+    const wireColors = ['red', 'blue', 'green', 'yellow'];
+    return wireColors.filter(color => color !== correctWire)[Math.floor(Math.random() * 3)];
+}
+
+function getRandomAdjacentWire() {
+    const wireColors = ['red', 'blue', 'green', 'yellow'];
+    const correctIndex = wireColors.indexOf(correctWire);
+    const adjacentIndices = [correctIndex - 1, correctIndex + 1].filter(i => i >= 0 && i < wireColors.length);
+    return wireColors[adjacentIndices[Math.floor(Math.random() * adjacentIndices.length)]];
+}
 // Commencer le jeu
 function startGame() {
     gameScreen.style.display = 'block';
