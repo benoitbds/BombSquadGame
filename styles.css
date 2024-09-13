@@ -57,3 +57,36 @@ button {
 #player-list li {
     margin: 5px 0;
 }
+#timer {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#mini-game-container {
+    position: relative;
+    width: 300px;
+    height: 50px;
+    margin: 20px auto;
+    background-color: #ccc;
+}
+
+#slider {
+    position: absolute;
+    width: 10px;
+    height: 50px;
+    background-color: red;
+    left: 0;
+}
+
+#target-zone {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: green;
+    left: 125px;
+}
+
+#cut-wire-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+}
