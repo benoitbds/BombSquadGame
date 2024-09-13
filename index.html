@@ -29,30 +29,31 @@
         <button id="next-player-btn">Passer au Suivant</button>
     </div>
 
-<!-- Écran de jeu principal -->
-<div id="game-screen" class="screen" style="display: none;">
-    <h2>Bomb Squad</h2>
-    <p>Discutez entre vous et décidez quel fil couper.</p>
-    <p id="timer">Temps restant : <span id="time-remaining">60</span> secondes</p>
-    <div id="wires-container">
-        <!-- Les fils seront générés dynamiquement -->
+    <!-- Écran de désamorçage -->
+    <div id="code-entry-screen" class="screen" style="display: none;">
+        <h2>Désamorçage de la Bombe</h2>
+        <p>Entrez le code pour désamorcer la bombe :</p>
+        <input type="text" id="code-input" maxlength="4">
+        <button id="submit-code-btn">Valider le Code</button>
+        <button id="call-vote-btn">Accuser un Traître</button>
+        <div id="timer">Temps restant : <span id="time-left"></span> secondes</div>
     </div>
-    <button id="restart-game-btn" style="display: none;">Rejouer</button>
-</div>
 
-<!-- Écran du mini-jeu -->
-<div id="mini-game-screen" class="screen" style="display: none;">
-    <h2>Coupez le Fil !</h2>
-    <p>Appuyez lorsque le curseur est dans la zone verte.</p>
-    <div id="mini-game-container">
-        <div id="slider"></div>
-        <div id="target-zone"></div>
+    <!-- Écran de vote -->
+    <div id="vote-screen" class="screen" style="display: none;">
+        <h2>Vote pour Démasquer un Traître</h2>
+        <p>Sélectionnez le joueur suspect :</p>
+        <ul id="vote-player-list"></ul>
+        <button id="submit-vote-btn">Valider le Vote</button>
     </div>
-    <button id="cut-wire-btn">Couper le Fil</button>
-</div>
-    
+
+    <!-- Écran de fin -->
+    <div id="end-screen" class="screen" style="display: none;">
+        <h2 id="end-message"></h2>
+        <button id="restart-game-btn">Rejouer</button>
+    </div>
+
     <!-- Script JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
-
